@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/nav_home"
         android:name="ru.mirea.astaevka.mireaproject.ui.home.HomeFragment"
-        android:label="@string/menu_home"
+        android:label="Profile"
         tools:layout="@layout/fragment_home" />
 
     <fragment
@@ -22,4 +22,34 @@
         android:name="ru.mirea.astaevka.mireaproject.ui.slideshow.SlideshowFragment"
         android:label="@string/menu_slideshow"
         tools:layout="@layout/fragment_slideshow" />
+
+    <fragment
+        android:id="@+id/worker"
+        android:name="ru.mirea.astaevka.mireaproject.ui.worker.WorkerFragment"
+        android:label="Worker"
+        tools:layout="@layout/fragment_worker" />
+
+    <fragment
+        android:id="@+id/compass"
+        android:name="ru.mirea.astaevka.mireaproject.ui.compass.CompassFragment"
+        android:label="Compass"
+        tools:layout="@layout/fragment_compass" />
+
+    <fragment
+        android:id="@+id/camera"
+        android:name="ru.mirea.astaevka.mireaproject.ui.camera.CameraFragment"
+        android:label="Camera"
+        tools:layout="@layout/fragment_camera" />
+
+    <fragment
+        android:id="@+id/mic"
+        android:name="ru.mirea.astaevka.mireaproject.ui.mic.MicFragment"
+        android:label="Microphone"
+        tools:layout="@layout/fragment_mic" />
+
+    <fragment
+        android:id="@+id/map"
+        android:name="ru.mirea.astaevka.mireaproject.ui.map.MapFragment"
+        android:label="Map"
+        tools:layout="@layout/fragment_map" />
 </navigation>

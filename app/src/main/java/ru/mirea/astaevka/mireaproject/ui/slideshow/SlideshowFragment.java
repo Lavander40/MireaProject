@@ -24,8 +24,10 @@ public class SlideshowFragment extends Fragment {
         binding = FragmentSlideshowBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-//        final TextView textView = binding.textSlideshow;
-//        slideshowViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
+        binding.textView2.setText("Проект восток - 東方Project");
+        binding.textView3.setText("Touhou Project — серия компьютерных игр в жанре даммаку (скролл-шутер), созданная японской компанией Team Shanghai Alice, состоящей из одного человека, известного под псевдонимом ZUN. ZUN в одиночку производит графику, музыку и программный код своих игр.\n" +
+                "\n" +
+                "Сюжет Touhou Project завязан вокруг странных феноменов, происходящих в Генсокё, вымышленной локации, населённой людьми и ёкаями, сверхъестественными существами. До событий в играх Генсокё был изолирован от внешнего мира магическим барьером. Протагонист серии, синтоистская жрица Рэйму Хакурэй, обеспечивает работоспособность барьера и сражается с враждебно настроенными ёкаями. ");
         return root;
     }
 

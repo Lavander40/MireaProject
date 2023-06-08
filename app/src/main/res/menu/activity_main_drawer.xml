@@ -18,8 +18,8 @@
             android:title="@string/menu_slideshow" />
         <item
             android:id="@+id/worker"
-            android:icon="@android:drawable/ic_menu_manage"
-            android:title="Worker" />
+            android:icon="@android:drawable/ic_lock_silent_mode_off"
+            android:title="Media Player" />
         <item
             android:id="@+id/compass"
             android:icon="@android:drawable/ic_menu_mylocation"

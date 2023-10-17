@@ -3,10 +3,16 @@ package ru.mirea.astaevka.mireaproject;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.provider.Settings.Secure;
 import android.os.Bundle;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -15,7 +21,9 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 import ru.mirea.astaevka.mireaproject.databinding.ActivityFireBaseBinding;
 
@@ -27,9 +35,21 @@ public class FireBase extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        final TelephonyManager tm = (TelephonyManager) getBaseContext().getSystemService(Context.TELEPHONY_SERVICE);
+
+        final String androidId;
+        androidId = "" + android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
+        String deviceId = androidId.toString();
+        Toast.makeText(this, "deviceId: " + deviceId.toString(), Toast.LENGTH_LONG).show();
+
+
+
 // Initialization views
         binding = ActivityFireBaseBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        binding.statusTextView.setText(deviceId);
 // [START initialize_auth] Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
 // [END initialize_auth]
@@ -80,7 +100,7 @@ public class FireBase extends AppCompatActivity {
 //            binding.verifyEmailButton.setVisibility(View.VISIBLE);
 //            binding.verifyEmailButton.setEnabled(!user.isEmailVerified());
         } else {
-            binding.statusTextView.setText(R.string.signed_out);
+            //binding.statusTextView.setText(R.string.signed_out);
             binding.detailTextView.setText(null);
             binding.PasswordField.setVisibility(View.VISIBLE);
             binding.button2.setVisibility(View.VISIBLE);

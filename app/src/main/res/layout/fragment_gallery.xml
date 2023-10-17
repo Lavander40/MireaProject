@@ -6,9 +6,15 @@
     android:layout_height="match_parent"
     tools:context=".ui.gallery.GalleryFragment">
 
-    <WebView
-        android:id="@+id/webview"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

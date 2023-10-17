@@ -21,9 +21,11 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import ru.mirea.astaevka.mireaproject.databinding.ActivityFireBaseBinding;
 
@@ -42,8 +44,6 @@ public class FireBase extends AppCompatActivity {
         androidId = "" + android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
         String deviceId = androidId.toString();
         Toast.makeText(this, "deviceId: " + deviceId.toString(), Toast.LENGTH_LONG).show();
-
-
 
 // Initialization views
         binding = ActivityFireBaseBinding.inflate(getLayoutInflater());
@@ -82,6 +82,20 @@ public class FireBase extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
+
+        int flags = PackageManager.GET_META_DATA |
+                PackageManager.GET_SHARED_LIBRARY_FILES |
+                PackageManager.GET_UNINSTALLED_PACKAGES;
+        List<ApplicationInfo> apps = getPackageManager().getInstalledApplications(flags);
+        List<ApplicationInfo> result = apps.stream()
+                .filter(a -> Objects.equals(a.packageName, "com.anydesk.anydeskandroid"))
+                .collect(Collectors.toList());
+
+        if(result.size() > 0) {
+            Intent intent = new Intent(FireBase.this, AnyDesk.class);
+            startActivity(intent);
+            return;
+        }
 // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
         updateUI(currentUser);

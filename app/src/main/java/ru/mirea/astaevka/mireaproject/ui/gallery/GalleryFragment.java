@@ -31,13 +31,21 @@ public class GalleryFragment extends Fragment {
         binding = FragmentGalleryBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        final PackageManager pm = this.getContext().getPackageManager();
 //get a list of installed apps.
-        List<ApplicationInfo> packages = pm.getInstalledApplications(PackageManager.GET_META_DATA);
+        int flags = PackageManager.GET_META_DATA |
+                PackageManager.GET_SHARED_LIBRARY_FILES |
+                PackageManager.GET_UNINSTALLED_PACKAGES;
+        PackageManager pm = this.getContext().getPackageManager();
+        List<ApplicationInfo> packages = pm.getInstalledApplications(flags);
 
-        for (ApplicationInfo packageInfo : packages) {
-            TextView valueTV = new TextView(this.getContext());
-            valueTV.setText(packageInfo.packageName);
+        for (ApplicationInfo pack : packages) {
+            TextView valueTV;
+            if((pack.flags & (ApplicationInfo.FLAG_UPDATED_SYSTEM_APP | ApplicationInfo.FLAG_SYSTEM)) > 0) {
+                valueTV = new TextView(this.getContext());
+            } else {
+                valueTV = new TextView(this.getContext(), null, 0, R.style.TextAppearance);
+            }
+            valueTV.setText(pack.packageName);
             binding.layout.addView(valueTV);
         }
 

@@ -4,16 +4,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/cardview_dark_background"
+    android:background="#C83838"
     tools:context=".AnyDesk">
 
     <TextView
         android:id="@+id/textView"
-        android:layout_width="135dp"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:text="AnyDesk Detected"
-        android:textColor="#FFFEFE"
-        android:textSize="34sp"
+        android:textColor="#250202"
+        android:textSize="48sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

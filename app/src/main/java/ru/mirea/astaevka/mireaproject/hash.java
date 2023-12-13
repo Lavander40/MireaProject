@@ -1,25 +1,20 @@
 package ru.mirea.astaevka.mireaproject;
 
+import android.util.Log;
+import android.widget.Toast;
+
 import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class hash {
-    private static final byte[] H = "ALFTJkbCL0aic8ON4XEYVfaYVbWa35nU".getBytes(StandardCharsets.UTF_8);;
+    private static final byte[] H = "ALFTJkbCL0aic8ON4XEYVfaYVbWa35nU".getBytes(StandardCharsets.US_ASCII);
     static byte[] Sum = new byte[32];
     static byte[] L = new byte[32];
-    static byte[][] block = { { 0x4, 0xA, 0x9, 0x2, 0xD, 0x8, 0x0, 0xE, 0x6, 0xB, 0x1, 0xC, 0x7, 0xF, 0x5, 0x3 },
-            { 0xE, 0xB, 0x4, 0xC, 0x6, 0xD, 0xF, 0xA, 0x2, 0x3, 0x8, 0x1, 0x0, 0x7, 0x5, 0x9 },
-            { 0x5, 0x8, 0x1, 0xD, 0xA, 0x3, 0x4, 0x2, 0xE, 0xF, 0xC, 0x7, 0x6, 0x0, 0x9, 0xB },
-            { 0x7, 0xD, 0xA, 0x1, 0x0, 0x8, 0x9, 0xF, 0xE, 0x4, 0x6, 0xC, 0xB, 0x2, 0x5, 0x3 },
-            { 0x6, 0xC, 0x7, 0x1, 0x5, 0xF, 0xD, 0x8, 0x4, 0xA, 0x9, 0xE, 0x0, 0x3, 0xB, 0x2 },
-            { 0x4, 0xB, 0xA, 0x0, 0x7, 0x2, 0x1, 0xD, 0x3, 0x6, 0x8, 0x5, 0x9, 0xC, 0xF, 0xE },
-            { 0xD, 0xB, 0x4, 0x1, 0x3, 0xF, 0x5, 0x9, 0x0, 0xA, 0xE, 0x7, 0x6, 0x8, 0x2, 0xC },
-            { 0x1, 0xF, 0xD, 0x0, 0x5, 0x7, 0xA, 0x4, 0x9, 0x2, 0x3, 0xE, 0x6, 0xB, 0x8, 0xC } };
-    public String GOST3411(String message) {
-        byte[] convert = message.getBytes(StandardCharsets.UTF_8);
+    public static String GOST3411(String message) {
+        byte[] convert = message.getBytes(StandardCharsets.US_ASCII);
         byte[] bytes = new byte[32];
-        for (int i = 0; i < 4; i++) bytes[i] = convert[i];
+        for (int i = 0; i < convert.length; i++) bytes[i] = convert[i];
 
         Sum = bytes;
         L = hexStringToByteArray("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
@@ -28,33 +23,42 @@ public class hash {
         Hout = f(Hout, L);
         Hout = f(Hout, Sum);
 
-        return new String(Hout, StandardCharsets.UTF_8);
+        return new String(Hout);
     }
 
-    public byte[] f(byte[] Hin, byte[] m){
+    public static byte[] f(byte[] Hin, byte[] m){
         byte[][] keys = keyGen(Hin, m);
 
-        byte[] s1 = E(Arrays.copyOfRange(Hin, 24, 31), keys[1]);
-        byte[] s2 = E(Arrays.copyOfRange(Hin, 16, 23), keys[2]);
-        byte[] s3 = E(Arrays.copyOfRange(Hin, 8, 15), keys[3]);
-        byte[] s4 = E(Arrays.copyOfRange(Hin, 0, 7), keys[4]);
-
-        byte[] S = Plus(Plus(Plus(s4, s3), s2),s1);
+        byte[] S = E(Hin, keys);
 
         byte[] Hout = FiR(Xor(Hin, Fi(Xor(m, FiR(S, 12)))), 61);
 
         return Hout;
     }
 
-    public byte[] E(byte[] h, byte[] k){
-        // ГОСТ 28147—89
-        byte[] A = Arrays.copyOfRange(h, 0, h.length/2-1);
-        byte[] B = Arrays.copyOfRange(h, h.length/2, h.length-1);
+    public static byte[] E(byte[] Hin, byte[][] key){
+        byte[] sT = new byte[32];
+        byte[] h1 = new byte[8];
+        byte[] h2 = new byte[8];
+        byte[] h3 = new byte[8];
+        byte[] h4 = new byte[8];
 
-        return h;
+        Cipher encryptor = new Cipher();
+        for (int i = 0; i < 8; i++) {
+            h1[i] = Hin[i];
+            h2[i] = Hin[i + 8];
+            h3[i] = Hin[i + 16];
+            h4[i] = Hin[i + 24];
+        }
+        System.arraycopy(encryptor.encrypt((h1), key[0]), 0, sT, 0, 8);
+        System.arraycopy(encryptor.encrypt((h2), key[1]), 0, sT, 8, 8);
+        System.arraycopy(encryptor.encrypt((h3), key[2]), 0, sT, 16, 8);
+        System.arraycopy(encryptor.encrypt((h4), key[3]), 0, sT, 24, 8);
+
+        return sT;
     }
 
-    public byte[] FiR(byte[] Yb, int round){
+    public static byte[] FiR(byte[] Yb, int round){
         byte[] Y = Yb;
 
         for (int r = 0; r < round; r++){
@@ -64,31 +68,35 @@ public class hash {
         return Y;
     }
 
-    public byte[] Fi(byte[] Yb){
-        byte[] xor = Arrays.copyOfRange(Yb, 30, 31);
-        xor = Xor(xor, Arrays.copyOfRange(Yb, 28, 29));
-        xor = Xor(xor, Arrays.copyOfRange(Yb, 26, 27));
-        xor = Xor(xor, Arrays.copyOfRange(Yb, 24, 25));
-        xor = Xor(xor, Arrays.copyOfRange(Yb, 3, 4));
-        xor = Xor(xor, Arrays.copyOfRange(Yb, 0, 1));
+    public static byte[] Fi(byte[] Yb){
+        byte[] xor = Arrays.copyOfRange(Yb, 30, 32);
+        xor = Xor(xor, Arrays.copyOfRange(Yb, 28, 30));
+        xor = Xor(xor, Arrays.copyOfRange(Yb, 26, 28));
+        xor = Xor(xor, Arrays.copyOfRange(Yb, 24, 26));
+        xor = Xor(xor, Arrays.copyOfRange(Yb, 3, 5));
+        xor = Xor(xor, Arrays.copyOfRange(Yb, 0, 2));
 
         for (int i = 31; i > 2; i-=2){
-            xor = Plus(xor, Arrays.copyOfRange(Yb, i-1, i));
+            xor = Plus(xor, Arrays.copyOfRange(Yb, i-1, i+1));
         }
 
         return xor;
     }
 
-    public byte[][] keyGen(byte[] Hin, byte[] m){
+    public static byte[][] keyGen(byte[] Hin, byte[] m){
         byte[] C2 = new byte[32];
         byte[] C3 = hexStringToByteArray("ff00ffff000000ffff0000ff00ffff0000ff00ff00ff00ffff00ff00ff00ff00");
         byte[] C4 = new byte[32];
 
         byte[] k1, k2, k3, k4;
 
-        byte[] U = Hin;
-        byte[] V = m;
-        byte[] W = Xor(U, V);
+        byte[] U = new byte[32];
+        byte[] V = new byte[32];
+        byte[] W;
+
+        System.arraycopy(Hin, 0, U, 0, Hin.length);
+        System.arraycopy(m, 0, V, 0, Hin.length);
+        W = Xor(U, V);
         k1 = P(W);
 
         U = Xor(A(U),C2);
@@ -110,32 +118,29 @@ public class hash {
         return new byte[][] {k1, k2, k3, k4};
     }
 
-    public byte[] A(byte[] Y){
+    public static byte[] A(byte[] Y){
         byte[] y1, y2, y3, y4;
-        y4 = Arrays.copyOfRange(Y, 0, 7);
-        y3 = Arrays.copyOfRange(Y, 8, 15);
-        y2 = Arrays.copyOfRange(Y, 16, 23);
-        y1 = Arrays.copyOfRange(Y, 24, 31);
+        y4 = Arrays.copyOfRange(Y, 0, 8);
+        y3 = Arrays.copyOfRange(Y, 8, 16);
+        y2 = Arrays.copyOfRange(Y, 16, 24);
+        y1 = Arrays.copyOfRange(Y, 24, 32);
 
         return Plus(Plus(Plus(Xor(y1, y2), y4), y3), y2);
     }
 
-    public byte[] P(byte[] Yb){
-        String Y = new String(Yb, StandardCharsets.UTF_8);
-        String Final = "";
-        Integer i = 0;
-        Integer k = 1;
+    public static byte[] P(byte[] Y){
+        byte[] Final = new byte[32];
 
-        for (int j = Y.length() - 1; j >= 0; j--) {
-            i = (i <= 3) ? i++ : 0;
-            k = (k <= 8) ? k++ : 0;
-            Final = Final + Y.charAt(i+1+4*(k-1));
+        for (int i = 0; i <= 3; i++) {
+            for (int k = 1; k <= 8; k++) {
+                Final[i + 1 + 4 * (k - 1) - 1] = Y[8 * i + k - 1];
+            }
         }
 
-        return Final.getBytes(StandardCharsets.UTF_8);
+        return Final;
     }
 
-    public byte[] Plus(byte[] a, byte[] b) {
+    public static byte[] Plus(byte[] a, byte[] b) {
         byte[] resultArray = new byte[a.length + b.length];
         System.arraycopy(a, 0, resultArray, 0, a.length);
         System.arraycopy(b, 0, resultArray, a.length, b.length);
@@ -143,14 +148,11 @@ public class hash {
         return resultArray;
     }
 
-    public byte[] Xor(byte[] a, byte[] b) {
-
+    public static byte[] Xor(byte[] a, byte[] b) {
         byte[] c = new byte[a.length];
-
-        int i = 0;
-        for (byte by : a)
-            c[i] = (byte) (by ^ b[i++]);
-
+        for (int i = 0; i < a.length; i++){
+            c[i] = (byte) (a[i] ^ b[i]);
+        }
         return c;
     }
 

@@ -56,13 +56,17 @@ public class FireBase extends AppCompatActivity {
         binding.button2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                createAccount(String.valueOf(binding.EmailField.getText()), String.valueOf(binding.PasswordField.getText()));
+                String phash = hash.GOST3411(String.valueOf(binding.PasswordField.getText()));
+                Toast.makeText(FireBase.this, phash, Toast.LENGTH_SHORT).show();
+                createAccount(String.valueOf(binding.EmailField.getText()), hash.GOST3411(String.valueOf(binding.PasswordField.getText())));
             }
         });
         binding.signIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                signIn(String.valueOf(binding.EmailField.getText()), String.valueOf(binding.PasswordField.getText()));
+                String phash = hash.GOST3411(String.valueOf(binding.PasswordField.getText()));
+                Toast.makeText(FireBase.this, phash, Toast.LENGTH_SHORT).show();
+                signIn(String.valueOf(binding.EmailField.getText()), phash);
             }
         });
         binding.signOut.setOnClickListener(new View.OnClickListener() {

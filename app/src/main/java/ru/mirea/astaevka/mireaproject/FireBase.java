@@ -2,11 +2,15 @@ package ru.mirea.astaevka.mireaproject;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
+import androidx.core.content.ContextCompat;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.provider.ContactsContract;
 import android.provider.Settings.Secure;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
@@ -25,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 import ru.mirea.astaevka.mireaproject.databinding.ActivityFireBaseBinding;
@@ -34,11 +39,49 @@ public class FireBase extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
     // START declare_auth
     public static FirebaseAuth mAuth;
+    BiometricPrompt biometricPrompt;
+    BiometricPrompt.PromptInfo promptInfo;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         final TelephonyManager tm = (TelephonyManager) getBaseContext().getSystemService(Context.TELEPHONY_SERVICE);
+        BiometricManager biometricManager = BiometricManager.from(this);
+        switch (biometricManager.canAuthenticate()){
+            case BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE:
+                Toast.makeText(FireBase.this, "No biomety reader on this device", Toast.LENGTH_SHORT).show();
+                break;
+            case BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE:
+                Toast.makeText(FireBase.this, "Biomety reader error", Toast.LENGTH_SHORT).show();
+                break;
+            case BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED:
+                Toast.makeText(FireBase.this, "No fingerprints found", Toast.LENGTH_SHORT).show();
+                break;
+        }
+
+        Executor executor = ContextCompat.getMainExecutor(this);
+        biometricPrompt = new BiometricPrompt(FireBase.this, executor, new BiometricPrompt.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
+                super.onAuthenticationError(errorCode, errString);
+                Toast.makeText(FireBase.this, "error", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
+                super.onAuthenticationSucceeded(result);
+                Toast.makeText(FireBase.this, "succeed", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(FireBase.this, MainActivity.class);
+                startActivity(intent);
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                super.onAuthenticationFailed();
+                Toast.makeText(FireBase.this, "failed", Toast.LENGTH_SHORT).show();
+            }
+        });
+        promptInfo = new BiometricPrompt.PromptInfo.Builder().setTitle("Auth").setDescription("use fingerprint").setDeviceCredentialAllowed(true).build();
 
         final String androidId;
         androidId = "" + android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
@@ -79,6 +122,12 @@ public class FireBase extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 sendEmailVerification();
+            }
+        });
+        binding.buttonFinger.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                biometricPrompt.authenticate(promptInfo);
             }
         });
     }
